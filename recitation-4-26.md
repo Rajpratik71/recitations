@@ -2,7 +2,7 @@
 
 In this example, I'll be going over how to make an [ArrayList](http://docs.oracle.com/javase/6/docs/api/java/util/ArrayList.html "Java 6 ArrayList"). C++ already has an ArrayList implementation, called [vector](http://www.cplusplus.com/reference/vector/vector/ "std::vector"), but making one from scratch is both instructive and useful in completing lab 9 and lab 10.
 
-The complete source, test file, and Makefile are included in this directory, but looking at the solution without trying is just cheating yourself.
+The complete source, test file, and Makefile are included in [this](https://github.com/kugurst/cs3157-recitations/tree/master/recitation-4-26-code "Recitation Code") directory, but looking at the solution without trying is just cheating yourself.
 
 Without further ado, let's get to it.
 
