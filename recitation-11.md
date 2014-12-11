@@ -59,6 +59,7 @@ Note: See ***24-smartptr.pdf*** for the actual definition.
 SmartPtr definition
 --------------------
 
+```cpp
 template <class T>
 class SmartPtr {
 
@@ -145,8 +146,52 @@ class SmartPtr {
 	operator void*() const { return ptr; }
 
 };
+```
+
+#### How do you use it? ####
+
+```cpp
+SmartPtr<string> ps1;
+SmartPtr<string> ps2(new string("hello "));
+SmartPtr<string> ps3(new string("world "));
+ps1 = ps2 = ps3;
+```
+
+
+### Warnings ###
+
+1. SmartPtrs should NOT point to objects on the stack. If you did something like:
+```cpp
+int x = 5;
+smartptr<int> spx(&x); //initialize the smartptr with the memory address of stack variable x
+```
+When spx is destructed and count goes to zero it will attempt to delete the
+pointer it has, namely the memory address of x. That will potentially crash
+your program.
+
+2. An object managed by a SmartPtr **must** be managed exclusively by SmartPtr. If
+you have a SmartPtr and naked pointers pointing to the same heap allocated
+object, you can easily have SmartPtr free something you need, or manually free
+something that SmartPtr will try to free again. That's no bueno.
+
+See the below discussion on Reference Cycles.
+
+### shared_ptr ###
+
+The C++11 standard includes a smart pointer template class (finally!)
+called "shared_ptr":
+
+* Works basically the same way as our SmartPtr, but more powerful.
+* Atomic reference counting for thread safety.
+* Can attach "weak_ptr", which does not participate in ref counting. These are
+  used to break the cycles mentioned above.
+* Delete operation customizable.
+
 
 ### Reference Cycles ###
+
+**Advanced topic for the curious** Or, if C++ is so smart, why didn't it free
+everything it was supposed to?
 
 Imagine you have a doubly linked list. Each node points to the next node, but
 also to the previous node. You also have a List object, that points to the head
@@ -161,27 +206,3 @@ However, the count of references to head node doesn't become 0, because there is
 This is called a reference cycle, which is the big problem with simple reference counting.
 
 shared_ptr solves this with weak_ptr. Another option is to use some sort of garbage collection very occasionally to try to identify these objects (mark and sweep being a common basic one). Regardless, it needs to be addressed.
-
-
-### Warnings ###
-
-SmartPtrs can't point to objects on the stack. Think about what would happen if
-you tried to make that happen?
-
-An object managed by a SmartPtr **must** be managed exclusively by SmartPtr. If
-you mix a SmartPtr and a 
-
-Don't forget the above discussion on Reference Cycles.
-
-
-# shared_ptr ##
-
-The C++11 standard includes a smart pointer template class (finally!)
-called "shared_ptr":
-
-* Works basically the same way as our SmartPtr, but more powerful.
-* Atomic reference counting for thread safety.
-* Can attach "weak_ptr", which does not participate in ref counting. These are
-  used to break the cycles mentioned above.
-* Delete operation customizable.
-

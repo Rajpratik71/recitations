@@ -84,12 +84,13 @@ vector<vector<MyString> > msvecvec;
 So, what's the type of `ivec`? `vector`? Nope! It's type `vector<int>`. The type
 of the template'd thing includes the type of the things being used in the
 template. This is because templates are handled in the compilation step, and
-basically generate a new type. This isn't exactly what happens, but mentally you
+basically generate a new type. This **isn't** exactly what happens, but mentally you
 can think of the compiler as seeing your `vector<int>` and creating a normal,
 non-template type `vector_int`; then it goes through and replaces every instance
 of the `vector<int>` template type with the `vector_int` normal type. If
 elsewhere you use `vector<MyString>`, it creates an entirely separate class
-called `vector_mystring`.
+called `vector_mystring`. (Again, nothign is literally called `vector_int` but
+it can be a good way to think about this)
 
 It helps to think about how the implementation is written. 
 
@@ -118,6 +119,16 @@ references for a couple of reasons:
 2. By taking a reference, you avoid the overhead associated with copy
 constructors, temporaries, etc.
 
+Using vector:
+
+```cpp
+vector<string> students(200); //a vector of 200 strings
+vector<int> grades; //an empty vector or grades
+
+students[0] = "Peter J. Awn";
+grades.push_back(100);
+```
+
 #### Templates: under the hood ####
 
 So we recalled above how compiling worked in C. We create a struct, like `struct
@@ -134,7 +145,7 @@ type `vector`. It's code that can work with *any* type. So whenever you use a
 jobs to do: 1) check that you're using it validly, and 2) *actually generate the
 code*. When you use the template with a type, the compiler is actually creating
 entirely new types, functions, etc. To do that it needs to have the full code
-available. **This is why we put templates entirely in the .hfiles.**
+available. **This is why we put templates entirely in the .h files.**
 
 A comment from Jae about this: 
 
@@ -163,28 +174,6 @@ alternatives: http://gcc.gnu.org/onlinedocs/gcc/Template-Instantiation.html
 
 See the end of Lippman 5th ed 16.1.1, "Template Compilation" for a more thorough
 explanation.
-
-
-#### Anecdote: Template metaprogramming to an extreme ####
-
-One really nice feature about templates is that, although they take a long time
-to compile, they're incredibly fast running. There's literally no overhead
-during execution for a templated class, because they're just turned into the
-code that you would have written yourself anyways.
-
-There's a really cool Bayesian statistics project at Columbia run by
-Andrew Gelman's group called Stan http://mc-stan.org/. It's very fast to run
-complicated statistical models (under a second for moderate sizes, where
-competitors would be several minutes), in part because the whole thing very
-extensively uses C++ templates. However it comes at the cost of 30-60 second
-compilations every time you want to create a new model (even just a tiny tweak).
-This is also because of the C++ templates, which mean it has to recompile a huge
-amount of code every time. By using templates the code is a little trickier to
-write, longer to compile, but the end result is execution times that are as fast
-as hand written code, with significantly more flexibility for the end user. This
-lets them have end users write whatever models they want, at basically no cost
-in slowness.
-
 
 #### Alternate Template Motivation ####
 
@@ -277,9 +266,19 @@ iterators.
 
 #### What can you do with containers? ####
 
-Iterators, of course, but also: things like sorting, inserting, swapping,
-splicing, merging, etc, etc. You can pass them into functions that will sort, or
-print, or whatever you could want.
+Each container will support slightly different operations based on the semantic
+meaing it has, and what it can do in a computationally efficient manner. However,
+generally they can:
+
+* Iterate
+* Sort
+* Insert new elements
+* Remove old elements
+* Swap around elements
+* Search for things
+* Splice 
+* Merge multiple containers
+* Be passed into functions that will do things, like printing them in a certain way
 
 
 #### Vector ####
@@ -291,24 +290,37 @@ right;  whenever it runs out of blanks it creates a new (larger) array, and
 copies the data from the old to new. It manages that underlying array
 internally.
 
-
-#### List ####
-
-List is a linked list, like we did in lab 3 but fancier. In particular the list
-class is doubly linked, so every node points not just to next, but also to
-previous (i.e., the node that points to it). It also maintains a tail pointer in
-addition to head, so it can append in O(1) constant time.
-
-This means that list does NOT define `operator[]` or anything similar - it has
-no random access, and it must do some pretty fancy stuff in its iterator.
+Vector is a lot like Java's ArrayList. 
 
 #### Deque ####
 
-Also known as deque, and pronounced "deck", it's a doubly ended queue: like a
-vector with space on both the left and the right. (Deque is actually implemented
-differently, but it's a good mental model.)
+Also known as dequeue, and pronounced "deck", it's a doubly ended queue: like a
+vector with space on both the left and the right. This means that `push_front()`
+and `pop_front()` are O(1) operations. 
 
-#### Derived Containers ####
+Note: Deque is actually implemented differently. However, a vector with empty
+space on  both ends is a good mental model. In reality it uses something like
+a vector of vectors, and therefore it wastes more memory and it does not guarantee
+that the elements will be stored contiguosly in memory.
+
+
+#### List ####
+
+List is a linked list. It's a fancier version of what you wrote for lab 3. In
+particular, the list
+class is doubly linked, so every node points not just to next, but also to
+previous (i.e., the node that points to it). It also maintains a tail pointer in
+addition to head, so it can addBack in O(1) constant time. It can also add/remove
+in O(1) time anywhere in the list, as long as you already have a pointer/reference
+to the right node.
+
+However, searching requires it to step through the whole list. Therefore 
+list does NOT define `operator[]` or anything similar - it has
+no random access. Additionally, its iterator is much more complex than vector,
+because vector is basically just a pointer. Here we need to map `++it` to advance
+to the next node.
+
+### Derived Containers ###
 
 Based on vector, list, and deque, there are several derived containers that use
 one of those as the underlying container. They include queue (uses either list
@@ -350,7 +362,6 @@ provide a convenient way to do that.
 One use is in map, which maps keys to values. It will return pairs when it wants
 to return (key, value) tuples.
 
-
 ```cpp
   map<string,int>  word_count;
   string word;
@@ -376,10 +387,22 @@ element stored in the container. Compare the same iterator code, one written for
 a vector, and the other for a dequeue: 
 
 ```cpp
+
+vector<string> v;
+v.push_back("Hello");
+v.push_back("world");
+
 for (vector<string>::iterator it = v.begin(); it != v.end(); ++it)
     *it = "";
 
-for (dequeue<string>::iterator it = v.begin(); it != v.end(); ++it)
+//Now for deque
+deque<string> v{ "Hello", "World" };
+
+for (deque<string>::iterator it = v.begin(); it != v.end(); ++it)
+    *it = "";
+
+// C++11 version
+for (auto it = v.begin(); it != v.end(); ++it)
     *it = "";
 ```
 
@@ -409,8 +432,20 @@ happens depends entirely on what the container holds.
 unordered, so we can only really test whether two iterators are not equal, not
 whether one is less than the other.
 
-There is also a `const_iterator`, which gives you const references, and behaves
-exactly the same way conceptually.
+A container can create an iterator of different types depending on what sort of
+behavior it wants to support. For example, a singly linked list (exactly like lab3)
+might have a *forward* iterator. It can only go forward, and therefore would
+support `++` but not `--`.
+
+The 3 types to worry about are: *forward*, *bidirectional*, and *random access*.
+Each can do all the things the ones to the left can do, and more. For example,
+a doubly linked list (like the normal STL list) has bidirectional iterators,
+because you can easily do `--it`. However only something like vector or deque
+offers a random access iterator, which can jump around arbitrarily, in addition
+to supporting `--` and `++`. 
+
+There are also `const_iterator`, which gives you const references. However it
+behaves exactly the same way conceptually.
 
 
 
@@ -422,3 +457,43 @@ better debugging and static analysis. Apple uses it for XCode, and it's
 available on clic as well. So if you're getting crazy error messages you don't
 understand, you can try changing `g++` to `clang++` in your Makefile, and seeing
 if you get more easily interpreted error messages.
+
+
+
+
+#### Anecdote: Template metaprogramming to an extreme ####
+
+One really nice feature about templates is that, although they take a long time
+to compile, they're incredibly fast running. There's literally no overhead
+during execution for a templated class, because they're just turned into the
+code that you would have written yourself anyways.
+
+There's a really cool Bayesian statistics project at Columbia run by
+Andrew Gelman's group called Stan http://mc-stan.org/. It's very fast to run
+complicated statistical models (under a second for moderate sizes, where
+competitors would be several minutes), in part because the whole thing very
+extensively uses C++ templates. However it comes at the cost of 30-60 second
+compilations every time you want to create a new model (even just a tiny tweak).
+This is also because of the C++ templates, which mean it has to recompile a huge
+amount of code every time. By using templates the code is a little trickier to
+write, longer to compile, but the end result is execution times that are as fast
+as hand written code, with significantly more flexibility for the end user. This
+lets them have end users write whatever models they want, at basically no cost
+in slowness.
+
+A relatively simple example they have is:
+
+```cpp
+DoubleVectorView<include_summand<propto,T_scale>::value,is_vector<T_scale>::value> log_sigma(length(sigma));
+```
+
+Quoting Daniel Lee, one of the main developers of STAN on one of his favorite examples:
+
+> If you look at the normal_log function (line 44 is the actual prototype), that function calculates the sum of log of the normal distribution given y, mu, sigma. So mathematically that's:
+log(0) - (sigma * sqrt(2 * pi)) - (y - mu)^2 / (2 * sigma^2)
+
+> I'll just enumerate some ways we're doing things really slick:
+> 1) Each of our arguments, {y, mu, sigma} can be double or stan::agrad::var, our auto-diff variable, or any other type that has the basic operators defined. The template types can handle that all (T_y, T_loc, T_scale).
+> 2) Each of our arguments, {y, mu, sigma} can be vectorized. That is, they can be a single value: double. Or a vector: std::vector<double>. Or an array: double[]. Or an Eigen Vector: Eigen::Matrix<double, 1, -1>. Or an Eigen Row Vector: Eigen::Matrix<double, -1, 1>. Oh yeah... since we've done the template magic, we can also replace double with our auto-diff type. The template function that handles the vectorization is hidden behind VectorView (lines 84-87). That is a struct that's defined in this file: https://github.com/stan-dev/stan/blob/develop/src/stan/meta/traits.hpp. The pattern is slick: expose operator[] to the struct. If it's a vector type, access the right element. If it's a double type, recycle the single element over and over again.
+> 3) Efficiency: we decide not to compute "constants" at compile time. A constant, in our usage, is anything that's a double. A parameter is an autodiff variable. If you look at line 111 of normal.hpp, that's a compile time if check. If we're not computing constants at all, we don't do the += operator. In fact, the real power is in the loop in lines 91 - 95. For each sigma value we have (1 if it's a single value, if it's a vector type, the length of the values it has), we calculate an inv_sigma[n] for each value, and if and only if sigma is an autodiff type (that's what the if statement is saying in line 93), we calculate log_sigma, but only once per sigma value we have. Now, every time we need a log_sigma, we use the operator[] on the log_sigma struct to grab values. For example, if y is a std::vector<double> of length 10, and sigma is a stan::agrad::var, we only calculate log_sigma once, but when we loop over 10 elements in the for loop on line 97, we are reading the same value over and over again on line 114. If y is a std::vector<double> of length 10 and sigma is a std::vector<stan::agrad::var> of length 10, then we calculate log_sigma for each individual value. In our typical use case, we typically have a single variance parameter and a lot of data points (think 100s or 1000s or even millions). So calculating the log(sigma) once is a large savings. And cutting out other calculations actually does matter.
+
