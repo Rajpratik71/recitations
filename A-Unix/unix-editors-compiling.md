@@ -1,3 +1,5 @@
+% = recitation remarks, notes
+
 ## Logging in ##
 
 (Remember: If you don't have a CS/clic account, you'll need to request one from 
@@ -331,6 +333,11 @@ int main(int argc, char **argv) {
   return 0;
 }
 ```
+% From #include:
+% <> = standard library
+% "" = something I wrote myself
+% ** = pointers
+% NO STRINGS IN C
 
 myadd.h
 
@@ -379,6 +386,8 @@ However if we try to link it into an executable, we get an error because during
 linking, it actually needs the code for `add()`:
 
     gcc -g main.o -o main
+
+% *** MAKE SURE FILE NAMES ARE EXACTLY AS SPECIFIED IN LABS ***
 
 So let's go ahead and write myadd.c. We need to include `myadd.h` in myadd.c,
 although it doesn't seem (and isn't strictly) necessary in this simple example.
