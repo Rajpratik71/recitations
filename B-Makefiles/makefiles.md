@@ -1,3 +1,5 @@
+% = recitation comments/notes
+
 # Makefiles #
 
 Make is a UNIX utility that follows a blueprint you create for compiling
@@ -20,6 +22,7 @@ Here, we'll lay out what each variable does.
 CC  = gcc
 CXX = g++
 ```
+% defines compilers
 
 Make has some pre-configured rules for how to compile programs. For example,
 it knows how to specify files as arguments to a compiler. However, you should 
@@ -33,6 +36,8 @@ INCLUDES =
 CFLAGS   = -g -Wall $(INCLUDES)
 CXXFLAGS = -g -Wall $(INCLUDES)
 ```
+% Don't compile with -Wall = lose points
+% Compile with -Wall and have warnings = lose points
 
 Here we define our own variable, INCLUDES, which we can use for directories 
 that we wish to include at the compilation step. An example value for INCLUDES 
@@ -95,11 +100,11 @@ Also note that make assumes that main depends on main.o, so we could omit it:
 main: myadd.o 
 ```
 
-Basically what this rule says is make should produce an executable called 
+*** Basically what this rule says is make should produce an executable called 
 "main" by linking myadd.o and main.o. This declares main.o and myadd.o as 
 dependencies of main, meaning that if any of the dependencies (or their 
 dependencies) change between the last time this target was run, it should 
-re-run the outdated targets as well as this one.
+re-run the outdated targets as well as this one. ***
 
 The next target we declare is main.o:
 
