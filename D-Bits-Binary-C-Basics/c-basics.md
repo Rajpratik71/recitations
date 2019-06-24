@@ -126,11 +126,11 @@ but we've not actually put anything there yet!
 There's no guarantee what garbage might be written in the piece of memory
 we're given, so trying to access it will result in **undefined behavior**
 (no guarantees for what will happen during compilation or execution;
-you'll hear us talk about this _a lot_, specifically about avoiding it).
+you'll here us talk about this _a lot_, specifically about avoiding it).
 
     int x;              // x is declared, but uninitialized
     printf("%d", x);    // undefined behavior; don't do this!
-    x = 4;              // x is now initialized to 4
+    x = 4;              // x is now initialized to 6
 
 We can also declare multiple variables of the same type all at once,
 separating the variable names with a `,`:
@@ -294,8 +294,8 @@ So, consider the following:
     char c = '\0';
     char d = '\x0';
 
-    assert(a != b);
-    assert(a == c);
+    assert(a == b);
+    assert(a != c);
     assert(a == d);
 
 `char` literals can be added and subtracted just like any other number,
@@ -569,6 +569,25 @@ The following are equivalent:
 
 This is just a detail to watch out for, but not super important.
 Most of the time we use the notation in the leftmost column, by convention.
+
+
+### IEEE-754 Floating Point Standard and Casting Pointers
+
+If you're curious to see what IEEE-754 floating point numbers look like,
+you can reuse some of your code from lab1 to do so:
+
+    float f = 3.157;        // or whatever you want it to be!
+    int *i = (int *) &f;    // don't worry about what this means
+                            // we're tricking the compiler to think that
+                            // the float is a binary (;
+
+    print_hex(*i);
+    print_binary(*i);       // implementation left as an exercise to the reader
+
+Note that this is also an example of casting pointers.
+By casting the `float` pointer to an `int` pointer, once we derefence it,
+we can interpret the same 4 bytes worth of data as integers rather than floats.
+
 
 #### The `const` Type Modifier
 
