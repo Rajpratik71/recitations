@@ -329,6 +329,11 @@ int main(int argc, char **argv) {
   return 0;
 }
 ```
+% From #include:
+% <> = standard library
+% "" = something I wrote myself
+% ** = pointers
+% NO STRINGS IN C
 
 myadd.h
 
@@ -389,6 +394,15 @@ linking, it actually needs the code for `add()`:
     gcc -g main.o -o main
 
   - `-o filename` — tells GCC what to name the output file
+% *** MAKE SURE FILE NAMES ARE EXACTLY AS SPECIFIED IN LABS ***
+
+So let's go ahead and write myadd.c. We need to include `myadd.h` in myadd.c,
+although it doesn't seem (and isn't strictly) necessary in this simple example.
+In general including the relevant header file helps the compiler catch any
+mistakes (for example,  if you change a function to return a long instead of an
+int, but don't fix it everywhere), and makes sure that every function in the file
+knows about every other function. So always include the relevant header file in
+the corresponding c file.
 
 myadd.c
 

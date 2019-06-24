@@ -14,6 +14,11 @@ commands just by typing `make`. It's also a handy way to automate cumbersome
 tasks, like cleaning up build products.
 
 
+```make
+CC  = gcc
+CXX = g++
+```
+% defines compilers
 The `myadd` `Makefile` in 10 Steps
 ----------------------------------
 
@@ -26,6 +31,11 @@ also inspect the `Makefile`s for each step under `myadd-demo/Makefiles`.
 This guide will follow the demo and explain what's happening with the `Makefile`
 at each step.
 
+CFLAGS   = -g -Wall $(INCLUDES)
+CXXFLAGS = -g -Wall $(INCLUDES)
+```
+% Don't compile with -Wall = lose points
+% Compile with -Wall and have warnings = lose points
 If you prefer to just see a completed, annotated `Makefile`, you can check out
 the [`sample-Makefile`](sample-Makefile) in this directory. Note that it does
 not use all the features touched upon in this guide, but is sufficient for the
@@ -75,6 +85,11 @@ We use the `-g` and `-Wall` flags to include debugger symbols and enable all
 compiler warnings. The `-o` flag specifies that the resulting file shall be
 named as the argument after it, `main`.
 
+*** Basically what this rule says is make should produce an executable called 
+"main" by linking myadd.o and main.o. This declares main.o and myadd.o as 
+dependencies of main, meaning that if any of the dependencies (or their 
+dependencies) change between the last time this target was run, it should 
+re-run the outdated targets as well as this one. ***
 
 ### Step 0
 
